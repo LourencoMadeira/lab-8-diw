@@ -1,0 +1,38 @@
+[
+  {
+    "title": "HTML",
+    "image": "html.svg",
+    "description": "Linguagem de marcação para estruturar páginas web",
+    "rating": 5
+  },
+  {
+    "title": "CSS",
+    "image": "css.svg",
+    "description": "Linguagem de estilo para design de páginas web",
+    "rating": 5
+  },
+  {
+    "title": "JavaScript",
+    "image": "javascript.svg",
+    "description": "Linguagem de programação para interatividade web",
+    "rating": 5
+  },
+  {
+    "title": "TypeScript",
+    "image": "typescript.svg",
+    "description": "Superset do JavaScript com tipagem estática",
+    "rating": 4
+  },
+  {
+    "title": "React",
+    "image": "react.svg",
+    "description": "Biblioteca JavaScript para construir interfaces",
+    "rating": 5
+  },
+  {
+    "title": "Next.js",
+    "image": "nextjs.svg",
+    "description": "Framework React para produção",
+    "rating": 5
+  }
+]
