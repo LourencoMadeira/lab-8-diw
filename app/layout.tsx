@@ -2,6 +2,16 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
+import Relogio from "@/app/components/Relogio";
+
+
+
+
+
+
+
+
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,29 +33,39 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  
   const data = new Date();
-
   return (
     <html lang="en">
-      <body className="flex flex-col justify-start gap-4 p-20 items-center min-h-screen">
-        
+      <body className='flex flex-col justify-start gap-4 p-20 items-center min-h-screen'>
+
         <header className="flex flex-col items-center">
-  <h1>React & Next.js</h1>
-  <nav className="flex gap-4">
- <Link href="/">Intro</Link>
+          <h1>React & Next.js</h1>
+          <nav className="flex gap-4">
+            <Link href="/">Intro</Link>
             <Link href="/sobre">Sobre</Link>
             <Link href="/caracteristicas">Características</Link>
             <Link href="/tecnologias">Tecnologias</Link>
-            <Link href="/projetos">Projetos</Link> 
-</nav>
-</header>
+            <Link href="/projetos">Projetos</Link>
+            <Link href="/contador">Contador</Link>
+            <Link href="/input">Input</Link>
+            <Link href="/produtos">Produtos</Link>
+
+
+
+          </nav>
+        </header>
 
         <main className="bg-blue-200 p-5 rounded-2xl max-w-2xl min-h-[70vh]">
           {children}
         </main>
 
-        <footer>DIW {data.getFullYear()}</footer>
+        
+        <footer className="text-center p-4 flex items-center justify-center gap-4">
+           DIW {data.getFullYear()}
+          <Relogio />
+        </footer>
+
+
 
       </body>
     </html>
