@@ -1,33 +1,37 @@
-const API = "https://deisishop.pythonanywhere.com";
+"use client";
 
-export default async function ProdutoPage({ params }: any) {
-  console.log("TESTE PARAMS:", params);
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { ProdutoDetalhe } from "@/app/components/ProdutoDetalhe";
+import { Product } from "@/app/models/interfaces";
 
-  const { id } = params;
+export default function ProdutoPage() {
+  const { id } = useParams();
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const res = await fetch(`${API}/products/${id}`, {
-    cache: "no-store"
-  });
+  useEffect(() => {
+    async function fetchProduct() {
+      try {
+        const res = await fetch(`https://deisishop.pythonanywhere.com/products/${id}`);
+        const data = await res.json();
+        setProduct(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-  if (!res.ok) {
-    return <p className="p-6">Produto não encontrado.</p>;
-  }
+    fetchProduct();
+  }, [id]);
 
-  const produto = await res.json();
+  if (loading) return <p>A carregar…</p>;
+  if (!product) return <p>Produto não encontrado.</p>;
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">{produto.title}</h1>
-
-      <img
-        src={produto.image}
-        className="w-64 h-64 object-contain mb-4"
-        alt={produto.title}
-      />
-
-      <p className="text-sm text-gray-300">{produto.description}</p>
-      <p className="text-green-400 text-xl mt-4">{produto.price} €</p>
-      <p className="text-yellow-400">⭐ {produto.rating.rate}</p>
+      <ProdutoDetalhe product={product} />
     </div>
   );
 }
