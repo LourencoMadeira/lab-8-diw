@@ -2,6 +2,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Product } from "@/app/models/interfaces";
 import Link from "next/link";
 
+const IMG = "https://deisishop.pythonanywhere.com/";
+
 interface Props {
   product: Product;
   addToCart: () => void;
@@ -16,7 +18,7 @@ export function ProductCard({ product, addToCart }: Props) {
 
       <CardContent className="space-y-3">
         <img
-          src={product.image}
+          src={IMG + product.image}
           alt={product.title}
           className="w-full h-40 object-cover rounded"
         />
