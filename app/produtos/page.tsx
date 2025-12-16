@@ -1,4 +1,12 @@
 "use client";
+// ALTERAÇÃO POSSÍVEL:
+// ONDE: esta linha no topo
+// CÓDIGO:
+//   remover "use client";
+// RESULTADO:
+//   a página passa a Server Component
+//   (useSWR, useState, useEffect e localStorage deixam de funcionar)
+// (não aplicado, apenas comentado)
 
 import useSWR from "swr";
 import { useState, useEffect } from "react";
@@ -7,16 +15,40 @@ import { Spinner } from "@/components/ui/spinner";
 import { ProductCard } from "@/app/components/ProductCard";
 
 const API = "https://deisishop.pythonanywhere.com/products";
+// ALTERAÇÃO POSSÍVEL:
+// ONDE: nesta constante
+// CÓDIGO:
+//   const API = process.env.NEXT_PUBLIC_API_URL + "/products";
+// RESULTADO:
+//   permite mudar a API sem mexer no código
+// (não aplicado, apenas comentado)
 
 // Fetcher para SWR
 const fetcher = async (url: string) => {
   const res = await fetch(url);
+
+  // ALTERAÇÃO POSSÍVEL:
+  // ONDE: antes da validação
+  // CÓDIGO:
+  //   console.log("Fetching:", url);
+  // RESULTADO:
+  //   ajuda na depuração de chamadas à API
+  // (não aplicado, apenas comentado)
+
   if (!res.ok) throw new Error("Erro ao buscar produtos");
   return res.json();
 };
 
 export default function ProdutosPage() {
+
   const { data, error, isLoading } = useSWR<Product[]>(API, fetcher);
+  // ALTERAÇÃO POSSÍVEL:
+  // ONDE: neste hook
+  // CÓDIGO:
+  //   useSWR<Product[]>(API, fetcher, { refreshInterval: 5000 })
+  // RESULTADO:
+  //   recarrega produtos automaticamente a cada 5s
+  // (não aplicado, apenas comentado)
 
   // ---------------------------
   // ESTADOS
@@ -27,8 +59,16 @@ export default function ProdutosPage() {
 
   const [student, setStudent] = useState(false);
   const [coupon, setCoupon] = useState("");
-
   const [purchaseMessage, setPurchaseMessage] = useState("");
+
+  // ALTERAÇÃO POSSÍVEL (ADIÇÃO):
+  // ONDE: aqui nos estados
+  // CÓDIGO:
+  //   const [minPrice, setMinPrice] = useState("");
+  //   const [maxPrice, setMaxPrice] = useState("");
+  // RESULTADO:
+  //   permite filtrar produtos por preço mínimo e máximo
+  // (não aplicado, apenas comentado)
 
   const [cart, setCart] = useState<Product[]>(() => {
     if (typeof window !== "undefined") {
@@ -37,23 +77,51 @@ export default function ProdutosPage() {
     }
     return [];
   });
+  // ALTERAÇÃO POSSÍVEL:
+  // ONDE: nesta inicialização
+  // CÓDIGO:
+  //   return [];
+  // RESULTADO:
+  //   desativa persistência do carrinho
+  // (não aplicado, apenas comentado)
 
-  // Guardar carrinho
+  // ---------------------------
+  // GUARDAR CARRINHO
+  // ---------------------------
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
+
+    // ALTERAÇÃO POSSÍVEL:
+    // ONDE: aqui
+    // CÓDIGO:
+    //   if (cart.length === 0) localStorage.removeItem("cart");
+    // RESULTADO:
+    //   limpa o localStorage quando o carrinho está vazio
+    // (não aplicado, apenas comentado)
   }, [cart]);
 
-  // Adicionar ao carrinho
+  // ---------------------------
+  // CARRINHO
+  // ---------------------------
   const addToCart = (product: Product) => {
     setCart((prev) => [...prev, product]);
+
+    // ALTERAÇÃO POSSÍVEL:
+    // ONDE: nesta função
+    // CÓDIGO:
+    //   if (prev.find(p => p.id === product.id)) return prev;
+    // RESULTADO:
+    //   impede produtos duplicados no carrinho
+    // (não aplicado, apenas comentado)
   };
 
-  // Remover
   const removeFromCart = (id: number) => {
     setCart((prev) => prev.filter((p) => p.id !== id));
   };
 
-  // Filtrar + ordenar produtos
+  // ---------------------------
+  // FILTRAR + ORDENAR
+  // ---------------------------
   useEffect(() => {
     if (!data) return;
 
@@ -61,6 +129,19 @@ export default function ProdutosPage() {
     let filtered = data.filter((p) =>
       p.title.toLowerCase().includes(lower)
     );
+
+    // ALTERAÇÃO POSSÍVEL (ADIÇÃO):
+    // ONDE: após filtro por nome
+    // CÓDIGO:
+    //   if (minPrice) {
+    //     filtered = filtered.filter(p => Number(p.price) >= Number(minPrice));
+    //   }
+    //   if (maxPrice) {
+    //     filtered = filtered.filter(p => Number(p.price) <= Number(maxPrice));
+    //   }
+    // RESULTADO:
+    //   filtra produtos por intervalo de preços
+    // (não aplicado, apenas comentado)
 
     switch (sortOption) {
       case "name-asc":
@@ -75,19 +156,41 @@ export default function ProdutosPage() {
       case "price-desc":
         filtered.sort((a, b) => Number(b.price) - Number(a.price));
         break;
+
+      // ALTERAÇÃO POSSÍVEL (ADIÇÃO):
+      // case "rating":
+      //   filtered.sort((a, b) => b.rating.rate - a.rating.rate);
+      // RESULTADO:
+      //   ordena produtos por rating
     }
 
     setFilteredData(filtered);
-  }, [search, sortOption, data]);
+  }, [
+    search,
+    sortOption,
+    data,
+    // ALTERAÇÃO POSSÍVEL:
+    // minPrice,
+    // maxPrice
+  ]);
 
-  // Total
+  // ---------------------------
+  // TOTAL
+  // ---------------------------
   const total = cart.reduce((sum, p) => {
     const price = Number(p.price);
     return sum + (isNaN(price) ? 0 : price);
   }, 0);
+  // ALTERAÇÃO POSSÍVEL:
+  // ONDE: neste cálculo
+  // CÓDIGO:
+  //   sum + p.price * 1.23
+  // RESULTADO:
+  //   adiciona IVA ao total
+  // (não aplicado, apenas comentado)
 
   // ---------------------------
-  // FUNÇÃO BUY — versão professor + mensagem final
+  // BUY
   // ---------------------------
   const buy = () => {
     fetch("https://deisishop.pythonanywhere.com/buy", {
@@ -95,23 +198,28 @@ export default function ProdutosPage() {
       body: JSON.stringify({
         products: cart.map((p) => p.id),
         name: "",
-        student: student,
-        coupon: coupon,
+        student,
+        coupon,
       }),
       headers: {
         "Content-Type": "application/json",
       },
     })
       .then((response) => {
-        if (!response.ok) {
-          throw new Error(response.statusText);
-        }
+        if (!response.ok) throw new Error();
         return response.json();
       })
       .then(() => {
         setCart([]);
         localStorage.setItem("cart", "[]");
         setPurchaseMessage("Compra realizada!");
+
+        // ALTERAÇÃO POSSÍVEL:
+        // ONDE: aqui
+        // CÓDIGO:
+        //   setCoupon("");
+        // RESULTADO:
+        //   limpa o cupão após compra
       })
       .catch(() => {
         setPurchaseMessage("Erro ao realizar compra.");
@@ -136,7 +244,12 @@ export default function ProdutosPage() {
   return (
     <div className="space-y-6 p-6">
 
-      <h1 className="text-3xl font-bold">Produtos</h1>
+      <h1 className="text-3xl font-bold">
+        Produtos
+        {/* ALTERAÇÃO POSSÍVEL:
+            ({filteredData.length})
+            mostra quantos produtos estão visíveis */}
+      </h1>
 
       {/* Pesquisa */}
       <input
@@ -146,6 +259,14 @@ export default function ProdutosPage() {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
+
+      {/* ALTERAÇÃO POSSÍVEL (ADIÇÃO):
+          <div className="flex gap-4">
+            <input type="number" placeholder="Preço mínimo" />
+            <input type="number" placeholder="Preço máximo" />
+          </div>
+          RESULTADO:
+            filtros por intervalo de preços */}
 
       {/* Ordenação */}
       <select
@@ -158,6 +279,9 @@ export default function ProdutosPage() {
         <option value="price-asc">Preço (Barato → Caro)</option>
         <option value="price-desc">Preço (Caro → Barato)</option>
       </select>
+
+      {/* ALTERAÇÃO POSSÍVEL (ADIÇÃO):
+          Botão "Limpar filtros" que faz reset aos estados */}
 
       {/* LISTA */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -177,10 +301,10 @@ export default function ProdutosPage() {
         {cart.length === 0 && <p>O carrinho está vazio.</p>}
 
         {cart.map((item, index) => (
-  <div
-    key={`${item.id}-${index}`}
-    className="flex justify-between items-center border p-2 rounded"
-  >
+          <div
+            key={`${item.id}-${index}`}
+            className="flex justify-between items-center border p-2 rounded"
+          >
             <span>{item.title}</span>
             <button
               onClick={() => removeFromCart(item.id)}
@@ -191,7 +315,6 @@ export default function ProdutosPage() {
           </div>
         ))}
 
-        {/* Checkbox Estudante */}
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
@@ -201,7 +324,6 @@ export default function ProdutosPage() {
           Estudante DEISI
         </label>
 
-        {/* Cupão */}
         <input
           type="text"
           placeholder="Cupão de desconto"
@@ -210,12 +332,10 @@ export default function ProdutosPage() {
           onChange={(e) => setCoupon(e.target.value)}
         />
 
-        {/* Total */}
         <p className="font-bold text-xl mt-2">
           Total: {Number(total).toFixed(2)} €
         </p>
 
-        {/* BOTÃO COMPRAR */}
         <button
           onClick={buy}
           className="w-full px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800"
@@ -224,7 +344,6 @@ export default function ProdutosPage() {
           Comprar
         </button>
 
-        {/* MENSAGEM FINAL */}
         {purchaseMessage && (
           <p className="text-center text-green-700 font-bold mt-3">
             {purchaseMessage}
